@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>原油价格预测</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div id="chart" style="width: 800px;height:500px;margin: 0 auto"></div>
+  
+    <script>
+        fetch('data/oil.csv')
+            .then(r => r.text())
+            .then(data => {
+                const rows = data.split('\n').slice(1).filter(Boolean)
+                const dates = [], prices = []
+                rows.forEach(row => {
+                    const [time, wti] = row.split(',')
+                    dates.push(time)
+                    prices.push(parseFloat(wti))
+                })
+
+                const chart = echarts.init(document.getElementById('chart'))
+                chart.setOption({
+                    title: { text: 'WTI原油期货价格走势' },
+                    xAxis: { data: dates },
+                    yAxis: {},
+                    series: [{
+                        type: 'line',
+                        data: prices,
+                        smooth: true,
+                        areaStyle: { color: '#ffe58f' }
+                    }]
+                })
+            })
+    </script>
+</body>
+</html>
