@@ -1,0 +1,25 @@
+name: Oil Data Update
+on:
+  schedule:
+    - cron: '30 0 * * *'  # 每天早8:30自动运行
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: 安装依赖
+      run: pip install yfinance pandas
+    - name: 抓取数据
+      run: |
+        mkdir data
+        python -c "import pandas as pd; import yfinance as yf; 
+        wti = yf.Ticker('CL=F').history(period='1d').iloc[-1].Close;
+        pd.DataFrame({'time':[pd.Timestamp.now()], 'wti':[wti]}).to_csv('data/oil.csv', index=False)"
+    - name: 提交更新
+      run: |
+        git config --global user.name "AutoBot"
+        git add data/oil.csv
+        git commit -m "自动更新数据"
+        git push
